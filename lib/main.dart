@@ -10,13 +10,43 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Welcome to Flutter',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Welcome to Flutter'),
+      title: "Movies App",
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
         ),
-        body: const Center(
-          child: Text('Hello World'),
+      ),
+      home: const Movies(),
+    );
+  }
+}
+
+class Movies extends StatefulWidget {
+  const Movies({Key? key}) : super(key: key);
+
+  @override
+  State<Movies> createState() => _MoviesState();
+}
+
+class _MoviesState extends State<Movies> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("MoviesApp"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+                icon: Icon(Icons.get_app),
+
+                onPressed: () {},
+            ),
+            Text("Get movies"),
+          ],
         ),
       ),
     );
