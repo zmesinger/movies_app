@@ -45,7 +45,7 @@ class _MoviesState extends State<Movies> {
 
                 onPressed: () {},
             ),
-            Text("Get movies"),
+            const Text("Get movies"),
           ],
         ),
       ),

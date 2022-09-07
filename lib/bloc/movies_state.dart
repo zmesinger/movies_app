@@ -7,3 +7,13 @@ class MoviesInitial extends MoviesState {
   @override
   List<Object?> get props => [];
 }
+
+class StateFetchingMovies extends MoviesState {
+  @override
+  List<Object?> get props => [];
+}
+
+class StateMoviesFetched extends MoviesState {
+  @override
+  List<Object?> get props => [];
+}
