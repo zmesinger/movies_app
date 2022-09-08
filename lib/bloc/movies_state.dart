@@ -22,3 +22,13 @@ class StateMoviesFetched extends MoviesState {
   @override
   List<Object?> get props => [data];
 }
+
+class StateMoviesFailed extends MoviesState {
+  final String errorMessage;
+
+  StateMoviesFailed(this.errorMessage);
+
+  @override
+  List<Object?> get props => [errorMessage];
+
+}

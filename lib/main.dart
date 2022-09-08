@@ -38,66 +38,83 @@ class Movies extends StatefulWidget {
 
 class _MoviesState extends State<Movies> {
   List<Search> _movies = [];
+  TextEditingController _queryController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("MoviesApp"),
-        actions: [
-          IconButton(
-              onPressed: (){
-                BlocProvider.of<MoviesBloc>(context).add(EventReturnToInitial());
-              },
-              icon: Icon(Icons.arrow_back))
-        ],
       ),
-      body: BlocBuilder<MoviesBloc, MoviesState>(
-        builder: (context, state) {
-          if(state is MoviesInitial){
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.get_app),
-                    onPressed: () {
-                      BlocProvider.of<MoviesBloc>(context).add(
-                          EventFetchMovies());
-                    },
+      body:
+      Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _queryController,
+              decoration: InputDecoration(
+                suffixIcon: IconButton(onPressed: () {
+                  BlocProvider.of<MoviesBloc>(context).add(EventFetchMovies(_queryController.text));
+                },
+                icon: const Icon(Icons.search),
+                ),
+                border: const OutlineInputBorder(),
+                hintText: "Enter query",
+              ),
+            ),
+          ),
+          BlocBuilder<MoviesBloc, MoviesState>(
+            builder: (context, state) {
+
+              if(state is StateFetchingMovies){
+                return Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        CircularProgressIndicator(),
+                      ],
+                    ),
                   ),
-                  const Text("Get movies"),
-                ],
-              ),
-            );
-          }else if(state is StateFetchingMovies){
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  CircularProgressIndicator()
-                ],
-              ),
-            );
-          }else if(state is StateMoviesFetched){
-            _movies = state.data.search;
-            return ListView.separated(
-                itemBuilder: (context, index){
-                  return ListTile(
-                    title: Text(_movies[index].title!),
-                    subtitle: Text(_movies[index].year!),
-                  );
-                },
-                separatorBuilder: (context, index){
-                  return const Divider();
-                },
-                itemCount: _movies.length);
-          }else{
-            return Container();
-          }
-        },
+                );
+              }else if(state is StateMoviesFetched){
+                _movies = state.data.search!;
+                return Expanded(
+                  child: ListView.separated(
+                      scrollDirection: Axis.vertical,
+                      itemBuilder: (context, index){
+                        return ListTile(
+                          title: Text(_movies[index].title!),
+                          subtitle: Text(_movies[index].year!),
+                          trailing: Image.network(_movies[index].poster!),
+                        );
+                      },
+                      separatorBuilder: (context, index){
+                        return const Divider();
+                      },
+                      itemCount: _movies.length),
+                );
+              }else if(state is StateMoviesFailed){
+                return Center(
+                  child: Row(
+                    children: [
+                      Center(
+                          child: Text(state.errorMessage)),
+                    ],
+                  ),
+                );
+              }
+              else{
+                return Container();
+              }
+            },
+          ),
+        ],
       ),
     );
   }
-}
+  }
+
 

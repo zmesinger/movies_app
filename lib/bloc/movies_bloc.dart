@@ -11,15 +11,27 @@ part 'movies_state.dart';
 
 class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
 
-  Future<Response?> getData() async {
-    return await MoviesService().getMovies();
+  Future<Response?> getData(String query) async {
+    return await MoviesService().getMovies(query);
   }
 
   MoviesBloc() : super(MoviesInitial())  {
     on<EventFetchMovies>((event, emit) async {
       emit(StateFetchingMovies());
-      Response? data = await getData();
-      emit (StateMoviesFetched(data!));
+      Response? data = await getData(event.query);
+      if(data != null){
+        print(data.toString());
+        if(data.search != null && data.search!.isNotEmpty){
+          emit(StateMoviesFetched(data));
+        }else if(data.search != null && data.search!.isEmpty){
+          emit (StateMoviesFailed("No movie data"));
+        }else{
+          emit (StateMoviesFailed("Fetching data failed"));
+        }
+      } else{
+        emit (StateMoviesFailed("Fetching data failed"));
+      }
+
     });
     on<EventReturnToInitial>((event, emit) {
       emit(MoviesInitial());

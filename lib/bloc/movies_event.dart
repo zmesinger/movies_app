@@ -6,8 +6,12 @@ abstract class MoviesEvent extends Equatable{
 }
 
 class EventFetchMovies extends MoviesEvent {
+  final String query;
+
+  EventFetchMovies(this.query);
+
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [query];
 }
 
 class EventReturnToInitial extends MoviesEvent {
