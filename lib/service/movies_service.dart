@@ -1,4 +1,4 @@
-import '../model/response.dart';
+import '../model/Response.dart';
 import 'package:http/http.dart' as http;
 
 class MoviesService {
@@ -10,7 +10,7 @@ class MoviesService {
 
     if(response.statusCode == 200){
       var json = response.body;
-      return Response.fromJson(json);
+      return responseFromJson(json);
     }
   }
 
