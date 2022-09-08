@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/bloc/movies_bloc.dart';
-import 'package:movies_app/model/Search.dart';
-import 'package:movies_app/model/Response.dart';
+import 'package:movies_app/model/search.dart';
+import 'package:movies_app/model/response.dart';
 
 void main() {
   runApp(BlocProvider(
@@ -39,27 +39,57 @@ class Movies extends StatefulWidget {
 
 class _MoviesState extends State<Movies> {
   List<Search> movies = [];
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("MoviesApp"),
       ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.get_app),
-
-              onPressed: () {
-                BlocProvider.of<MoviesBloc>(context).add(EventFetchMovies());
-              },
-            ),
-            const Text("Get movies"),
-          ],
-        ),
+      body: BlocBuilder<MoviesBloc, MoviesState>(
+        builder: (context, state) {
+          if(state is MoviesInitial){
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.get_app),
+                    onPressed: () {
+                      BlocProvider.of<MoviesBloc>(context).add(
+                          EventFetchMovies());
+                    },
+                  ),
+                  const Text("Get movies"),
+                ],
+              ),
+            );
+          }else if(state is StateFetchingMovies){
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  CircularProgressIndicator()
+                ],
+              ),
+            );
+          }else if(state is StateMoviesFetched){
+            movies = state.data.search;
+            return ListView.separated(
+                itemBuilder: (context, index){
+                  return ListTile(
+                    title: Text(movies[index].title!),
+                    subtitle: Text(movies[index].year!),
+                  );
+                },
+                separatorBuilder: (context, index){
+                  return const Divider();
+                },
+                itemCount: movies.length);
+          }else{
+            return Container();
+          }
+        },
       ),
     );
   }

@@ -1,4 +1,4 @@
-import '../model/Response.dart';
+import '../model/response.dart';
 import 'package:http/http.dart' as http;
 
 class MoviesService {

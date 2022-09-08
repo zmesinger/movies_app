@@ -1,10 +1,5 @@
-// To parse this JSON data, do
-//
-//     final response = responseFromJson(jsonString);
-
 import 'dart:convert';
-
-import 'package:movies_app/model/Search.dart';
+import 'package:movies_app/model/search.dart';
 
 Response responseFromJson(String str) => Response.fromJson(json.decode(str));
 
