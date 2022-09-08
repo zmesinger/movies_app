@@ -19,9 +19,10 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
     on<EventFetchMovies>((event, emit) async {
       emit(StateFetchingMovies());
       Response? data = await getData();
-      print(data);
-      print(data!.search);
       emit (StateMoviesFetched(data!));
+    });
+    on<EventReturnToInitial>((event, emit) {
+      emit(MoviesInitial());
     });
   }
 }

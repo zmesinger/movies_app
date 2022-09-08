@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/bloc/movies_bloc.dart';
 import 'package:movies_app/model/search.dart';
-import 'package:movies_app/model/response.dart';
 
 void main() {
   runApp(BlocProvider(
@@ -21,8 +20,8 @@ class MyApp extends StatelessWidget {
       title: "Movies App",
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
+          backgroundColor: Colors.red,
+          foregroundColor: Colors.white,
         ),
       ),
       home: const Movies(),
@@ -38,13 +37,20 @@ class Movies extends StatefulWidget {
 }
 
 class _MoviesState extends State<Movies> {
-  List<Search> movies = [];
+  List<Search> _movies = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("MoviesApp"),
+        actions: [
+          IconButton(
+              onPressed: (){
+                BlocProvider.of<MoviesBloc>(context).add(EventReturnToInitial());
+              },
+              icon: Icon(Icons.arrow_back))
+        ],
       ),
       body: BlocBuilder<MoviesBloc, MoviesState>(
         builder: (context, state) {
@@ -74,18 +80,18 @@ class _MoviesState extends State<Movies> {
               ),
             );
           }else if(state is StateMoviesFetched){
-            movies = state.data.search;
+            _movies = state.data.search;
             return ListView.separated(
                 itemBuilder: (context, index){
                   return ListTile(
-                    title: Text(movies[index].title!),
-                    subtitle: Text(movies[index].year!),
+                    title: Text(_movies[index].title!),
+                    subtitle: Text(_movies[index].year!),
                   );
                 },
                 separatorBuilder: (context, index){
                   return const Divider();
                 },
-                itemCount: movies.length);
+                itemCount: _movies.length);
           }else{
             return Container();
           }
