@@ -19,3 +19,12 @@ class EventReturnToInitial extends MoviesEvent {
   List<Object?> get props => [];
 
 }
+
+class EventShowMovieDetails extends MoviesEvent {
+  final String imdbID;
+
+  EventShowMovieDetails(this.imdbID);
+  @override
+  List<Object?> get props => [imdbID];
+
+}
