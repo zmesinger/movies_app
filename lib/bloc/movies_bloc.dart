@@ -34,11 +34,8 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       }
 
     });
-    on<EventReturnToInitial>((event, emit) {
-      emit(MoviesInitial());
-    });
-    on<EventShowMovieDetails>((event, emit) async {
-      emit(StateFetchingMovies());
+    on<EventShowDetails>((event, emit) async {
+      emit(StateFetchingMovieDetails());
       Movie? movie = await getMovieDetail(event.imdbID);
       if(movie != null){
         print(movie.toString());

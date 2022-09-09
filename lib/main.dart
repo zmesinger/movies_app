@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/bloc/movies_bloc.dart';
 import 'package:movies_app/model/search.dart';
+import 'package:movies_app/screen/details.dart';
 
 void main() {
   runApp(BlocProvider(
@@ -56,9 +57,10 @@ class _MoviesState extends State<Movies> {
               controller: _queryController,
               decoration: InputDecoration(
                 suffixIcon: IconButton(onPressed: () {
-                  BlocProvider.of<MoviesBloc>(context).add(EventFetchMovies(_queryController.text));
+                  BlocProvider.of<MoviesBloc>(context).add(
+                      EventFetchMovies(_queryController.text));
                 },
-                icon: const Icon(Icons.search),
+                  icon: const Icon(Icons.search),
                 ),
                 border: const OutlineInputBorder(),
                 hintText: "Enter query",
@@ -66,9 +68,11 @@ class _MoviesState extends State<Movies> {
             ),
           ),
           BlocBuilder<MoviesBloc, MoviesState>(
+            buildWhen: (prev, curr) {
+              return curr is StateFetchingMovies || curr is StateMoviesFetched || curr is StateMoviesFailed;
+            },
             builder: (context, state) {
-
-              if(state is StateFetchingMovies){
+              if (state is StateFetchingMovies) {
                 return Expanded(
                   child: Center(
                     child: Column(
@@ -79,24 +83,25 @@ class _MoviesState extends State<Movies> {
                     ),
                   ),
                 );
-              }else if(state is StateMoviesFetched){
+              } else if (state is StateMoviesFetched) {
                 _movies = state.data.search!;
                 return Expanded(
                   child: ListView.separated(
                       scrollDirection: Axis.vertical,
-                      itemBuilder: (context, index){
+                      itemBuilder: (context, index) {
                         return ListTile(
                           title: Text(_movies[index].title!),
                           subtitle: Text(_movies[index].year!),
                           trailing: Image.network(_movies[index].poster!),
+                          onTap: () => _showDetails(_movies[index].imdbId!),
                         );
                       },
-                      separatorBuilder: (context, index){
+                      separatorBuilder: (context, index) {
                         return const Divider();
                       },
                       itemCount: _movies.length),
                 );
-              }else if(state is StateMoviesFailed){
+              } else if (state is StateMoviesFailed) {
                 return Center(
                   child: Row(
                     children: [
@@ -106,7 +111,7 @@ class _MoviesState extends State<Movies> {
                   ),
                 );
               }
-              else{
+              else {
                 return Container();
               }
             },
@@ -115,6 +120,17 @@ class _MoviesState extends State<Movies> {
       ),
     );
   }
+   _showDetails(String imdbID){
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (context){
+        return BlocProvider<MoviesBloc>.value(
+          value: BlocProvider.of<MoviesBloc>(context),
+          child: Details(imdbID: imdbID,),
+        );
+      }
+      )
+    );
   }
 
 
+  }
