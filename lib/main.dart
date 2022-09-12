@@ -77,6 +77,7 @@ class _MoviesState extends State<Movies> {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text("Movie added to watchlist"),
+                      duration: const Duration(seconds: 1),
                       action: SnackBarAction(
                           label: "HIDE",
                           onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar),)
@@ -107,15 +108,15 @@ class _MoviesState extends State<Movies> {
                         return ListTile(
                           title: Text(_movies[index].title!),
                           subtitle: Text(_movies[index].year!),
-                          trailing: Image.network(_movies[index].poster!) ,
+                          leading: Image.network(_movies[index].poster!) ,
                           onTap: () => _showDetails(_movies[index].imdbId!),
-                          leading: IconButton(
+                          trailing: IconButton(
                               onPressed: (){
                                 BlocProvider.of<MoviesBloc>(context).add(
                                     EventAddToWatchlist(_movies[index].imdbId!));
 
                               },
-                              icon: const Icon(Icons.save)),
+                              icon: const Icon(Icons.add_circle_outline_sharp)),
                         );
                       },
                       separatorBuilder: (context, index) {

@@ -31,6 +31,7 @@ class _WatchlistState extends State<Watchlist> {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                         content: const Text("Movie removed from watchlist"),
+                        duration: const Duration(seconds: 1),
                         action: SnackBarAction(
                           label: "HIDE",
                           onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar,)
@@ -57,8 +58,8 @@ class _WatchlistState extends State<Watchlist> {
                       return ListTile(
                         title: Text(state.movies[index].title!),
                         subtitle: Text(state.movies[index].year!),
-                        leading: Image.network(state.movies[index].poster!),
-                        trailing: IconButton(icon: const Icon(Icons.dangerous_outlined),
+                        leading:  _displayPoster(state.movies[index].poster),
+                        trailing: IconButton(icon: const Icon(Icons.remove_circle_outline_sharp),
                           onPressed: (){
                           setState(() {
                             BlocProvider.of<MoviesBloc>(context).add(EventRemoveFromWatchlist(state.movies[index]));
@@ -80,4 +81,13 @@ class _WatchlistState extends State<Watchlist> {
       )
     );
   }
+
+  Widget _displayPoster(String? posterUrl){
+    if(posterUrl == null || posterUrl.isEmpty){
+      return Image.network("https://cdn.pixabay.com/photo/2012/04/12/20/12/x-30465_960_720.png");
+    }else{
+      return Image.network(posterUrl);
+    }
+  }
+
 }
