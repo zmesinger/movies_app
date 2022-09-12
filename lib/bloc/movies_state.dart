@@ -48,3 +48,27 @@ class StateFetchingMovieDetails extends MoviesState {
   List<Object?> get props => [];
 }
 
+class StateFetchingMoviesFromDb extends MoviesState{
+  @override
+  List<Object?> get props => [];
+
+}
+
+class StateMoviesFetchedFromDb extends MoviesState{
+  final List<Movie> movies;
+
+  StateMoviesFetchedFromDb(this.movies);
+
+  @override
+  List<Object?> get props => [movies];
+
+}
+
+class StateMovieInserted extends MoviesState{
+  @override
+  List<Object?> get props => [];
+
+}
+
+
+

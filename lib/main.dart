@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/bloc/movies_bloc.dart';
 import 'package:movies_app/model/search.dart';
 import 'package:movies_app/screen/details.dart';
+import 'package:movies_app/screen/watchlist.dart';
 
 void main() {
   runApp(BlocProvider(
@@ -47,6 +48,9 @@ class _MoviesState extends State<Movies> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("MoviesApp"),
+        actions: [
+          IconButton(onPressed: _showWatchlist, icon: Icon(Icons.list))
+        ],
       ),
       body:
       Column(
@@ -133,4 +137,14 @@ class _MoviesState extends State<Movies> {
   }
 
 
+
+   _showWatchlist() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (context) {
+        return BlocProvider<MoviesBloc>.value(
+            value: BlocProvider.of<MoviesBloc>(context),
+            child: Watchlist(),);
+      })
+    );
   }
+}

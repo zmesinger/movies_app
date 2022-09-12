@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
+import 'package:movies_app/database/watchlist_db.dart';
 import 'package:movies_app/model/movie.dart';
 import 'package:movies_app/model/response.dart';
 import 'package:movies_app/service/movies_service.dart';
@@ -11,6 +12,9 @@ part 'movies_event.dart';
 part 'movies_state.dart';
 
 class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
+
+
+  Future<WatchlistDb> getInstance() async => await $FloorWatchlistDb.databaseBuilder("watchlist_db").build();
 
   Future<Response?> getData(String query) async => await MoviesService().getMovies(query);
 
@@ -49,6 +53,19 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       }else{
         emit(StateMoviesFailed("Fetching details failed"));
       }
+    });
+    on<EventShowWatchlist>((event, emit) async {
+      emit(StateFetchingMoviesFromDb());
+      final db = await getInstance();
+      List<Movie> movies = await db.movieDao.getMovies();
+      if(movies.isEmpty) {
+        emit(StateMoviesFailed("No movies saved in watchlist!"));
+      }else{
+        emit(StateMoviesFetchedFromDb(movies));
+      }
+    });
+    on<EventAddToWatchlist>((event, emit)  {
+
     });
 
   }

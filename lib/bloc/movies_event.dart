@@ -28,3 +28,21 @@ class EventShowDetails extends MoviesEvent {
   List<Object?> get props => [imdbID];
 
 }
+
+class EventShowWatchlist extends MoviesEvent{
+
+  @override
+  List<Object?> get props => [];
+
+}
+
+class EventAddToWatchlist extends MoviesEvent {
+  final String imdbId;
+
+  EventAddToWatchlist(this.imdbId);
+
+  @override
+  List<Object?> get props => [imdbId];
+
+
+}
