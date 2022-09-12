@@ -64,8 +64,20 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
         emit(StateMoviesFetchedFromDb(movies));
       }
     });
-    on<EventAddToWatchlist>((event, emit)  {
-
+    on<EventAddToWatchlist>((event, emit) async {
+      final db = await getInstance();
+      Movie? movie = await getMovieDetail(event.imdbId);
+      if(movie != null) {
+        db.movieDao.insertMovie(movie);
+      }
+      emit(StateMovieInserted());
+    });
+    on<EventRemoveFromWatchlist>((event, emit) async {
+      final db = await getInstance();
+      db.movieDao.deleteMovie(event.movie);
+      emit(StateMovieRemoved());
+      List<Movie> movies = await db.movieDao.getMovies();
+      emit(StateMoviesFetchedFromDb(movies));
     });
 
   }

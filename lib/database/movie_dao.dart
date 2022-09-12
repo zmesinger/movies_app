@@ -8,9 +8,12 @@ abstract class MovieDao {
   Future<List<Movie>> getMovies();
   
   @Query("SELECT * FROM Movie WHERE imdbId = :imdbId")
-  Future<Movie?> getMovieById(String imdbId);
+  Stream<Movie?> getMovieById(String imdbId);
 
   @insert
   Future<void> insertMovie(Movie movie);
+
+  @delete
+  Future<void> deleteMovie(Movie movie);
 
 }

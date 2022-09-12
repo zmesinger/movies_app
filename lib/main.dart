@@ -40,7 +40,7 @@ class Movies extends StatefulWidget {
 
 class _MoviesState extends State<Movies> {
   List<Search> _movies = [];
-  TextEditingController _queryController = TextEditingController();
+  final TextEditingController _queryController = TextEditingController();
 
 
   @override
@@ -49,7 +49,7 @@ class _MoviesState extends State<Movies> {
       appBar: AppBar(
         title: const Text("MoviesApp"),
         actions: [
-          IconButton(onPressed: _showWatchlist, icon: Icon(Icons.list))
+          IconButton(onPressed: _showWatchlist, icon: const Icon(Icons.list))
         ],
       ),
       body:
@@ -71,7 +71,18 @@ class _MoviesState extends State<Movies> {
               ),
             ),
           ),
-          BlocBuilder<MoviesBloc, MoviesState>(
+          BlocConsumer<MoviesBloc, MoviesState>(
+            listener: (prev, curr) {
+              if(curr is StateMovieInserted){
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text("Movie added to watchlist"),
+                      action: SnackBarAction(
+                          label: "HIDE",
+                          onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar),)
+                );
+              }
+            },
             buildWhen: (prev, curr) {
               return curr is StateFetchingMovies || curr is StateMoviesFetched || curr is StateMoviesFailed;
             },
@@ -96,8 +107,15 @@ class _MoviesState extends State<Movies> {
                         return ListTile(
                           title: Text(_movies[index].title!),
                           subtitle: Text(_movies[index].year!),
-                          trailing: Image.network(_movies[index].poster!),
+                          trailing: Image.network(_movies[index].poster!) ,
                           onTap: () => _showDetails(_movies[index].imdbId!),
+                          leading: IconButton(
+                              onPressed: (){
+                                BlocProvider.of<MoviesBloc>(context).add(
+                                    EventAddToWatchlist(_movies[index].imdbId!));
+
+                              },
+                              icon: const Icon(Icons.save)),
                         );
                       },
                       separatorBuilder: (context, index) {
@@ -146,5 +164,7 @@ class _MoviesState extends State<Movies> {
             child: Watchlist(),);
       })
     );
+
+
   }
 }
