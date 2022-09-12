@@ -108,14 +108,13 @@ class _MoviesState extends State<Movies> {
                         return ListTile(
                           title: Text(_movies[index].title!),
                           subtitle: Text(_movies[index].year!),
-                          leading: Image.network(_movies[index].poster!) ,
+                          leading:  _displayPoster(_movies[index].poster),
                           onTap: () => _showDetails(_movies[index].imdbId!),
                           trailing: IconButton(
                               onPressed: (){
                                 BlocProvider.of<MoviesBloc>(context).add(
                                     EventAddToWatchlist(_movies[index].imdbId!));
-
-                              },
+                                },
                               icon: const Icon(Icons.add_circle_outline_sharp)),
                         );
                       },
@@ -162,10 +161,16 @@ class _MoviesState extends State<Movies> {
       MaterialPageRoute<void>(builder: (context) {
         return BlocProvider<MoviesBloc>.value(
             value: BlocProvider.of<MoviesBloc>(context),
-            child: Watchlist(),);
+            child: const Watchlist(),);
       })
     );
+  }
 
-
+  Widget _displayPoster(String? posterUrl){
+    if(posterUrl == null || posterUrl.isEmpty){
+      return Image.network("https://cdn.pixabay.com/photo/2012/04/12/20/12/x-30465_960_720.png");
+    }else{
+      return Image.network(posterUrl);
+    }
   }
 }

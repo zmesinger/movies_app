@@ -10,6 +10,9 @@ abstract class MovieDao {
   @Query("SELECT * FROM Movie WHERE imdbId = :imdbId")
   Stream<Movie?> getMovieById(String imdbId);
 
+  @Query("SELECT * FROM Movie")
+  Stream<List<Movie>> watchMovies();
+
   @insert
   Future<void> insertMovie(Movie movie);
 
