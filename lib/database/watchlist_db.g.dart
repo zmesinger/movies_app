@@ -235,6 +235,38 @@ class _$MovieDao extends MovieDao {
   }
 
   @override
+  Stream<List<Movie>> watchMovies() {
+    return _queryAdapter.queryListStream('SELECT * FROM Movie',
+        mapper: (Map<String, Object?> row) => Movie(
+            title: row['title'] as String?,
+            year: row['year'] as String?,
+            rated: row['rated'] as String?,
+            released: row['released'] as String?,
+            runtime: row['runtime'] as String?,
+            genre: row['genre'] as String?,
+            director: row['director'] as String?,
+            writer: row['writer'] as String?,
+            actors: row['actors'] as String?,
+            plot: row['plot'] as String?,
+            language: row['language'] as String?,
+            country: row['country'] as String?,
+            awards: row['awards'] as String?,
+            poster: row['poster'] as String?,
+            metascore: row['metascore'] as String?,
+            imdbRating: row['imdbRating'] as String?,
+            imdbVotes: row['imdbVotes'] as String?,
+            imdbId: row['imdbId'] as String?,
+            type: row['type'] as String?,
+            dvd: row['dvd'] as String?,
+            boxOffice: row['boxOffice'] as String?,
+            production: row['production'] as String?,
+            website: row['website'] as String?,
+            response: row['response'] as String?),
+        queryableName: 'Movie',
+        isView: false);
+  }
+
+  @override
   Future<void> insertMovie(Movie movie) async {
     await _movieInsertionAdapter.insert(movie, OnConflictStrategy.abort);
   }

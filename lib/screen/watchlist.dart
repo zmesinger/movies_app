@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movies_app/model/movie.dart';
 import '../bloc/movies_bloc.dart';
 import 'details.dart';
 
@@ -43,6 +44,7 @@ class _WatchlistState extends State<Watchlist> {
                 }
               },
               builder: (context, state) {
+
                 if (state is StateFetchingMoviesFromDb) {
                   return Expanded(
                     child: Center(
@@ -56,25 +58,34 @@ class _WatchlistState extends State<Watchlist> {
                   );
                 } else if (state is StateMoviesFetchedFromDb) {
                   return Expanded(
-                    child: ListView.separated(
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Text(state.movies[index].title!),
-                            subtitle: Text(state.movies[index].year!),
-                            leading: _displayPoster(state.movies[index].poster),
-                            trailing: IconButton(icon: const Icon(
-                                Icons.remove_circle_outline_sharp),
-                                onPressed: () {
-                                  BlocProvider.of<MoviesBloc>(context).add(
-                                      EventRemoveFromWatchlist(
-                                          state.movies[index]));
-                                }),
-                          );
-                        },
-                        separatorBuilder: (context, index) {
-                          return const Divider();
-                        },
-                        itemCount: state.movies.length),
+                    child: StreamBuilder(
+                      stream: state.movies,
+                        builder: (context, snapshot){
+                          List<Movie>? movies = snapshot.data;
+                          if(!snapshot.hasData){
+                            return const Center(
+                              child: CircularProgressIndicator(),);
+                          }else{
+                          return ListView.separated(
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Text(movies[index].title!),
+                                  subtitle: Text(movies[index].year!),
+                                  leading: _displayPoster(movies[index].poster!),
+                                  trailing: IconButton(icon: const Icon(
+                                      Icons.remove_circle_outline_sharp),
+                                      onPressed: () {
+                                        BlocProvider.of<MoviesBloc>(context).add(
+                                            EventRemoveFromWatchlist(
+                                                movies[index]));
+                                      }),
+                                );
+                              },
+                              separatorBuilder: (context, index){
+                                return const Divider();
+                              },
+                              itemCount: movies!.length);
+                        }}),
                   );
                 } else {
                   return Container();
@@ -94,5 +105,6 @@ class _WatchlistState extends State<Watchlist> {
       return Image.network(posterUrl);
     }
   }
+
 
 }

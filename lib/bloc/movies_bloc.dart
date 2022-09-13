@@ -20,6 +20,7 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
 
   Future<Movie?> getMovieDetail(String imdbID) async => await MoviesService().getMovieDetails(imdbID);
 
+
   MoviesBloc() : super(MoviesInitial())  {
     on<EventFetchMovies>((event, emit) async {
       emit(StateFetchingMovies());
@@ -57,8 +58,8 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
     on<EventShowWatchlist>((event, emit) async {
       emit(StateFetchingMoviesFromDb());
       final db = await getInstance();
-      List<Movie> movies = await db.movieDao.getMovies();
-      if(movies.isEmpty) {
+      Stream<List<Movie>> movies = db.movieDao.watchMovies();
+      if(await movies.isEmpty) {
         emit(StateMoviesFailed("No movies saved in watchlist!"));
       }else{
         emit(StateMoviesFetchedFromDb(movies));
@@ -76,8 +77,6 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       final db = await getInstance();
       db.movieDao.deleteMovie(event.movie);
       emit(StateMovieRemoved());
-      List<Movie> movies = await db.movieDao.getMovies();
-      emit(StateMoviesFetchedFromDb(movies));
     });
 
   }
