@@ -55,7 +55,7 @@ class StateFetchingMoviesFromDb extends MoviesState{
 }
 
 class StateMoviesFetchedFromDb extends MoviesState{
-  final Stream<List<Movie>> movies;
+  final Stream<List<MovieTableData>> movies;
 
   StateMoviesFetchedFromDb(this.movies);
 

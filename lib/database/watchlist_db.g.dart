@@ -3,276 +3,297 @@
 part of 'watchlist_db.dart';
 
 // **************************************************************************
-// FloorGenerator
+// DriftDatabaseGenerator
 // **************************************************************************
 
-// ignore: avoid_classes_with_only_static_members
-class $FloorWatchlistDb {
-  /// Creates a database builder for a persistent database.
-  /// Once a database is built, you should keep a reference to it and re-use it.
-  static _$WatchlistDbBuilder databaseBuilder(String name) =>
-      _$WatchlistDbBuilder(name);
-
-  /// Creates a database builder for an in memory database.
-  /// Information stored in an in memory database disappears when the process is killed.
-  /// Once a database is built, you should keep a reference to it and re-use it.
-  static _$WatchlistDbBuilder inMemoryDatabaseBuilder() =>
-      _$WatchlistDbBuilder(null);
-}
-
-class _$WatchlistDbBuilder {
-  _$WatchlistDbBuilder(this.name);
-
-  final String? name;
-
-  final List<Migration> _migrations = [];
-
-  Callback? _callback;
-
-  /// Adds migrations to the builder.
-  _$WatchlistDbBuilder addMigrations(List<Migration> migrations) {
-    _migrations.addAll(migrations);
-    return this;
+// ignore_for_file: type=lint
+class MovieTableData extends DataClass implements Insertable<MovieTableData> {
+  final int id;
+  final String title;
+  final String year;
+  final String imdbId;
+  final String poster;
+  const MovieTableData(
+      {required this.id,
+      required this.title,
+      required this.year,
+      required this.imdbId,
+      required this.poster});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['title'] = Variable<String>(title);
+    map['year'] = Variable<String>(year);
+    map['imdb_id'] = Variable<String>(imdbId);
+    map['poster'] = Variable<String>(poster);
+    return map;
   }
 
-  /// Adds a database [Callback] to the builder.
-  _$WatchlistDbBuilder addCallback(Callback callback) {
-    _callback = callback;
-    return this;
-  }
-
-  /// Creates the database and initializes it.
-  Future<WatchlistDb> build() async {
-    final path = name != null
-        ? await sqfliteDatabaseFactory.getDatabasePath(name!)
-        : ':memory:';
-    final database = _$WatchlistDb();
-    database.database = await database.open(
-      path,
-      _migrations,
-      _callback,
+  MovieTableCompanion toCompanion(bool nullToAbsent) {
+    return MovieTableCompanion(
+      id: Value(id),
+      title: Value(title),
+      year: Value(year),
+      imdbId: Value(imdbId),
+      poster: Value(poster),
     );
-    return database;
-  }
-}
-
-class _$WatchlistDb extends WatchlistDb {
-  _$WatchlistDb([StreamController<String>? listener]) {
-    changeListener = listener ?? StreamController<String>.broadcast();
   }
 
-  MovieDao? _movieDaoInstance;
-
-  Future<sqflite.Database> open(String path, List<Migration> migrations,
-      [Callback? callback]) async {
-    final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
-      onConfigure: (database) async {
-        await database.execute('PRAGMA foreign_keys = ON');
-        await callback?.onConfigure?.call(database);
-      },
-      onOpen: (database) async {
-        await callback?.onOpen?.call(database);
-      },
-      onUpgrade: (database, startVersion, endVersion) async {
-        await MigrationAdapter.runMigrations(
-            database, startVersion, endVersion, migrations);
-
-        await callback?.onUpgrade?.call(database, startVersion, endVersion);
-      },
-      onCreate: (database, version) async {
-        await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Movie` (`title` TEXT, `year` TEXT, `rated` TEXT, `released` TEXT, `runtime` TEXT, `genre` TEXT, `director` TEXT, `writer` TEXT, `actors` TEXT, `plot` TEXT, `language` TEXT, `country` TEXT, `awards` TEXT, `poster` TEXT, `metascore` TEXT, `imdbRating` TEXT, `imdbVotes` TEXT, `imdbId` TEXT, `type` TEXT, `dvd` TEXT, `boxOffice` TEXT, `production` TEXT, `website` TEXT, `response` TEXT, PRIMARY KEY (`imdbId`))');
-
-        await callback?.onCreate?.call(database, version);
-      },
+  factory MovieTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MovieTableData(
+      id: serializer.fromJson<int>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      year: serializer.fromJson<String>(json['year']),
+      imdbId: serializer.fromJson<String>(json['imdbId']),
+      poster: serializer.fromJson<String>(json['poster']),
     );
-    return sqfliteDatabaseFactory.openDatabase(path, options: databaseOptions);
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'title': serializer.toJson<String>(title),
+      'year': serializer.toJson<String>(year),
+      'imdbId': serializer.toJson<String>(imdbId),
+      'poster': serializer.toJson<String>(poster),
+    };
+  }
+
+  MovieTableData copyWith(
+          {int? id,
+          String? title,
+          String? year,
+          String? imdbId,
+          String? poster}) =>
+      MovieTableData(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        year: year ?? this.year,
+        imdbId: imdbId ?? this.imdbId,
+        poster: poster ?? this.poster,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('MovieTableData(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('year: $year, ')
+          ..write('imdbId: $imdbId, ')
+          ..write('poster: $poster')
+          ..write(')'))
+        .toString();
   }
 
   @override
-  MovieDao get movieDao {
-    return _movieDaoInstance ??= _$MovieDao(database, changeListener);
+  int get hashCode => Object.hash(id, title, year, imdbId, poster);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MovieTableData &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.year == this.year &&
+          other.imdbId == this.imdbId &&
+          other.poster == this.poster);
+}
+
+class MovieTableCompanion extends UpdateCompanion<MovieTableData> {
+  final Value<int> id;
+  final Value<String> title;
+  final Value<String> year;
+  final Value<String> imdbId;
+  final Value<String> poster;
+  const MovieTableCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.year = const Value.absent(),
+    this.imdbId = const Value.absent(),
+    this.poster = const Value.absent(),
+  });
+  MovieTableCompanion.insert({
+    this.id = const Value.absent(),
+    required String title,
+    required String year,
+    required String imdbId,
+    required String poster,
+  })  : title = Value(title),
+        year = Value(year),
+        imdbId = Value(imdbId),
+        poster = Value(poster);
+  static Insertable<MovieTableData> custom({
+    Expression<int>? id,
+    Expression<String>? title,
+    Expression<String>? year,
+    Expression<String>? imdbId,
+    Expression<String>? poster,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (year != null) 'year': year,
+      if (imdbId != null) 'imdb_id': imdbId,
+      if (poster != null) 'poster': poster,
+    });
+  }
+
+  MovieTableCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? title,
+      Value<String>? year,
+      Value<String>? imdbId,
+      Value<String>? poster}) {
+    return MovieTableCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      year: year ?? this.year,
+      imdbId: imdbId ?? this.imdbId,
+      poster: poster ?? this.poster,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (year.present) {
+      map['year'] = Variable<String>(year.value);
+    }
+    if (imdbId.present) {
+      map['imdb_id'] = Variable<String>(imdbId.value);
+    }
+    if (poster.present) {
+      map['poster'] = Variable<String>(poster.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MovieTableCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('year: $year, ')
+          ..write('imdbId: $imdbId, ')
+          ..write('poster: $poster')
+          ..write(')'))
+        .toString();
   }
 }
 
-class _$MovieDao extends MovieDao {
-  _$MovieDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database, changeListener),
-        _movieInsertionAdapter = InsertionAdapter(
-            database,
-            'Movie',
-            (Movie item) => <String, Object?>{
-                  'title': item.title,
-                  'year': item.year,
-                  'rated': item.rated,
-                  'released': item.released,
-                  'runtime': item.runtime,
-                  'genre': item.genre,
-                  'director': item.director,
-                  'writer': item.writer,
-                  'actors': item.actors,
-                  'plot': item.plot,
-                  'language': item.language,
-                  'country': item.country,
-                  'awards': item.awards,
-                  'poster': item.poster,
-                  'metascore': item.metascore,
-                  'imdbRating': item.imdbRating,
-                  'imdbVotes': item.imdbVotes,
-                  'imdbId': item.imdbId,
-                  'type': item.type,
-                  'dvd': item.dvd,
-                  'boxOffice': item.boxOffice,
-                  'production': item.production,
-                  'website': item.website,
-                  'response': item.response
-                },
-            changeListener),
-        _movieDeletionAdapter = DeletionAdapter(
-            database,
-            'Movie',
-            ['imdbId'],
-            (Movie item) => <String, Object?>{
-                  'title': item.title,
-                  'year': item.year,
-                  'rated': item.rated,
-                  'released': item.released,
-                  'runtime': item.runtime,
-                  'genre': item.genre,
-                  'director': item.director,
-                  'writer': item.writer,
-                  'actors': item.actors,
-                  'plot': item.plot,
-                  'language': item.language,
-                  'country': item.country,
-                  'awards': item.awards,
-                  'poster': item.poster,
-                  'metascore': item.metascore,
-                  'imdbRating': item.imdbRating,
-                  'imdbVotes': item.imdbVotes,
-                  'imdbId': item.imdbId,
-                  'type': item.type,
-                  'dvd': item.dvd,
-                  'boxOffice': item.boxOffice,
-                  'production': item.production,
-                  'website': item.website,
-                  'response': item.response
-                },
-            changeListener);
-
-  final sqflite.DatabaseExecutor database;
-
-  final StreamController<String> changeListener;
-
-  final QueryAdapter _queryAdapter;
-
-  final InsertionAdapter<Movie> _movieInsertionAdapter;
-
-  final DeletionAdapter<Movie> _movieDeletionAdapter;
-
+class $MovieTableTable extends MovieTable
+    with TableInfo<$MovieTableTable, MovieTableData> {
   @override
-  Future<List<Movie>> getMovies() async {
-    return _queryAdapter.queryList('SELECT * FROM Movie',
-        mapper: (Map<String, Object?> row) => Movie(
-            title: row['title'] as String?,
-            year: row['year'] as String?,
-            rated: row['rated'] as String?,
-            released: row['released'] as String?,
-            runtime: row['runtime'] as String?,
-            genre: row['genre'] as String?,
-            director: row['director'] as String?,
-            writer: row['writer'] as String?,
-            actors: row['actors'] as String?,
-            plot: row['plot'] as String?,
-            language: row['language'] as String?,
-            country: row['country'] as String?,
-            awards: row['awards'] as String?,
-            poster: row['poster'] as String?,
-            metascore: row['metascore'] as String?,
-            imdbRating: row['imdbRating'] as String?,
-            imdbVotes: row['imdbVotes'] as String?,
-            imdbId: row['imdbId'] as String?,
-            type: row['type'] as String?,
-            dvd: row['dvd'] as String?,
-            boxOffice: row['boxOffice'] as String?,
-            production: row['production'] as String?,
-            website: row['website'] as String?,
-            response: row['response'] as String?));
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MovieTableTable(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  final VerificationMeta _yearMeta = const VerificationMeta('year');
+  @override
+  late final GeneratedColumn<String> year = GeneratedColumn<String>(
+      'year', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  final VerificationMeta _imdbIdMeta = const VerificationMeta('imdbId');
+  @override
+  late final GeneratedColumn<String> imdbId = GeneratedColumn<String>(
+      'imdb_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  final VerificationMeta _posterMeta = const VerificationMeta('poster');
+  @override
+  late final GeneratedColumn<String> poster = GeneratedColumn<String>(
+      'poster', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, title, year, imdbId, poster];
+  @override
+  String get aliasedName => _alias ?? 'movie_table';
+  @override
+  String get actualTableName => 'movie_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<MovieTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('year')) {
+      context.handle(
+          _yearMeta, year.isAcceptableOrUnknown(data['year']!, _yearMeta));
+    } else if (isInserting) {
+      context.missing(_yearMeta);
+    }
+    if (data.containsKey('imdb_id')) {
+      context.handle(_imdbIdMeta,
+          imdbId.isAcceptableOrUnknown(data['imdb_id']!, _imdbIdMeta));
+    } else if (isInserting) {
+      context.missing(_imdbIdMeta);
+    }
+    if (data.containsKey('poster')) {
+      context.handle(_posterMeta,
+          poster.isAcceptableOrUnknown(data['poster']!, _posterMeta));
+    } else if (isInserting) {
+      context.missing(_posterMeta);
+    }
+    return context;
   }
 
   @override
-  Stream<Movie?> getMovieById(String imdbId) {
-    return _queryAdapter.queryStream('SELECT * FROM Movie WHERE imdbId = ?1',
-        mapper: (Map<String, Object?> row) => Movie(
-            title: row['title'] as String?,
-            year: row['year'] as String?,
-            rated: row['rated'] as String?,
-            released: row['released'] as String?,
-            runtime: row['runtime'] as String?,
-            genre: row['genre'] as String?,
-            director: row['director'] as String?,
-            writer: row['writer'] as String?,
-            actors: row['actors'] as String?,
-            plot: row['plot'] as String?,
-            language: row['language'] as String?,
-            country: row['country'] as String?,
-            awards: row['awards'] as String?,
-            poster: row['poster'] as String?,
-            metascore: row['metascore'] as String?,
-            imdbRating: row['imdbRating'] as String?,
-            imdbVotes: row['imdbVotes'] as String?,
-            imdbId: row['imdbId'] as String?,
-            type: row['type'] as String?,
-            dvd: row['dvd'] as String?,
-            boxOffice: row['boxOffice'] as String?,
-            production: row['production'] as String?,
-            website: row['website'] as String?,
-            response: row['response'] as String?),
-        arguments: [imdbId],
-        queryableName: 'Movie',
-        isView: false);
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MovieTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MovieTableData(
+      id: attachedDatabase.options.types
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      year: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}year'])!,
+      imdbId: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}imdb_id'])!,
+      poster: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}poster'])!,
+    );
   }
 
   @override
-  Stream<List<Movie>> watchMovies() {
-    return _queryAdapter.queryListStream('SELECT * FROM Movie',
-        mapper: (Map<String, Object?> row) => Movie(
-            title: row['title'] as String?,
-            year: row['year'] as String?,
-            rated: row['rated'] as String?,
-            released: row['released'] as String?,
-            runtime: row['runtime'] as String?,
-            genre: row['genre'] as String?,
-            director: row['director'] as String?,
-            writer: row['writer'] as String?,
-            actors: row['actors'] as String?,
-            plot: row['plot'] as String?,
-            language: row['language'] as String?,
-            country: row['country'] as String?,
-            awards: row['awards'] as String?,
-            poster: row['poster'] as String?,
-            metascore: row['metascore'] as String?,
-            imdbRating: row['imdbRating'] as String?,
-            imdbVotes: row['imdbVotes'] as String?,
-            imdbId: row['imdbId'] as String?,
-            type: row['type'] as String?,
-            dvd: row['dvd'] as String?,
-            boxOffice: row['boxOffice'] as String?,
-            production: row['production'] as String?,
-            website: row['website'] as String?,
-            response: row['response'] as String?),
-        queryableName: 'Movie',
-        isView: false);
+  $MovieTableTable createAlias(String alias) {
+    return $MovieTableTable(attachedDatabase, alias);
   }
+}
 
+abstract class _$WatchlistDb extends GeneratedDatabase {
+  _$WatchlistDb(QueryExecutor e) : super(e);
+  late final $MovieTableTable movieTable = $MovieTableTable(this);
   @override
-  Future<void> insertMovie(Movie movie) async {
-    await _movieInsertionAdapter.insert(movie, OnConflictStrategy.abort);
-  }
-
+  Iterable<TableInfo<Table, dynamic>> get allTables =>
+      allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  Future<void> deleteMovie(Movie movie) async {
-    await _movieDeletionAdapter.delete(movie);
-  }
+  List<DatabaseSchemaEntity> get allSchemaEntities => [movieTable];
 }

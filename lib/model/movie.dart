@@ -1,14 +1,13 @@
 import 'dart:convert';
 
-import 'package:floor/floor.dart';
+import 'package:drift/drift.dart';
 import 'package:movies_app/model/rating.dart';
 
 Movie movieFromJson(String str) => Movie.fromJson(json.decode(str));
 
 String movieToJson(Movie data) => json.encode(data.toJson());
 
-@entity
-class Movie {
+class Movie extends Table {
   Movie({
     this.title,
     this.year,
@@ -51,12 +50,10 @@ class Movie {
   String? country;
   String? awards;
   String? poster;
-  @ignore
   List<Rating>? ratings;
   String? metascore;
   String? imdbRating;
   String? imdbVotes;
-  @primaryKey
   String? imdbId;
   String? type;
   String? dvd;

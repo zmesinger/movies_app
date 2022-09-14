@@ -37,21 +37,21 @@ class EventShowWatchlist extends MoviesEvent{
 }
 
 class EventAddToWatchlist extends MoviesEvent {
-  final String imdbId;
+  final MovieTableCompanion movie;
 
-  EventAddToWatchlist(this.imdbId);
+  EventAddToWatchlist(this.movie);
 
   @override
-  List<Object?> get props => [imdbId];
+  List<Object?> get props => [movie];
 
 }
 
 class EventRemoveFromWatchlist extends MoviesEvent{
-  final Movie movie;
+  final int id;
 
-  EventRemoveFromWatchlist(this.movie);
+  EventRemoveFromWatchlist(this.id);
 
   @override
-  List<Object?> get props => [movie];
+  List<Object?> get props => [id];
 
 }

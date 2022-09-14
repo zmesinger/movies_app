@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:movies_app/database/watchlist_db.dart';
 import 'package:movies_app/model/movie.dart';
@@ -13,8 +14,7 @@ part 'movies_state.dart';
 
 class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
 
-
-  Future<WatchlistDb> getInstance() async => await $FloorWatchlistDb.databaseBuilder("watchlist_db").build();
+  final db = WatchlistDb();
 
   Future<Response?> getData(String query) async => await MoviesService().getMovies(query);
 
@@ -57,25 +57,20 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
     });
     on<EventShowWatchlist>((event, emit) async {
       emit(StateFetchingMoviesFromDb());
-      final db = await getInstance();
-      Stream<List<Movie>> movies = db.movieDao.watchMovies();
+      Stream<List<MovieTableData>> movies = db.watchMovies();
+
       if(await movies.isEmpty) {
         emit(StateMoviesFailed("No movies saved in watchlist!"));
       }else{
         emit(StateMoviesFetchedFromDb(movies));
       }
     });
-    on<EventAddToWatchlist>((event, emit) async {
-      final db = await getInstance();
-      Movie? movie = await getMovieDetail(event.imdbId);
-      if(movie != null) {
-        db.movieDao.insertMovie(movie);
-      }
+    on<EventAddToWatchlist>((event, emit) {
+      db.insertMovie(event.movie);
       emit(StateMovieInserted());
     });
     on<EventRemoveFromWatchlist>((event, emit) async {
-      final db = await getInstance();
-      db.movieDao.deleteMovie(event.movie);
+      db.deleteMovie(event.id);
       emit(StateMovieRemoved());
     });
 

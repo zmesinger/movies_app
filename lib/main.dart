@@ -1,9 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/bloc/movies_bloc.dart';
+import 'package:movies_app/database/watchlist_db.dart';
 import 'package:movies_app/model/search.dart';
 import 'package:movies_app/screen/details.dart';
 import 'package:movies_app/screen/watchlist.dart';
+import 'package:drift/drift.dart' as drift;
 
 void main() {
   runApp(BlocProvider(
@@ -113,7 +117,13 @@ class _MoviesState extends State<Movies> {
                           trailing: IconButton(
                               onPressed: (){
                                 BlocProvider.of<MoviesBloc>(context).add(
-                                    EventAddToWatchlist(_movies[index].imdbId!));
+                                    EventAddToWatchlist(MovieTableCompanion(
+                                      title: drift.Value(_movies[index].title!),
+                                      year: drift.Value(_movies[index].year!),
+                                      poster: drift.Value(_movies[index].poster!),
+                                      imdbId: drift.Value(_movies[index].imdbId!),
+                                    )
+                                        ));
                                 },
                               icon: const Icon(Icons.add_circle_outline_sharp)),
                         );

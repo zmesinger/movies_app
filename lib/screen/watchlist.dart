@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movies_app/database/watchlist_db.dart';
 import 'package:movies_app/model/movie.dart';
 import '../bloc/movies_bloc.dart';
 import 'details.dart';
@@ -19,17 +20,24 @@ class _WatchlistState extends State<Watchlist> {
     BlocProvider.of<MoviesBloc>(context).add(EventShowWatchlist());
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Watchlist"),
+
         ),
         body: Column(
           children: [
             BlocConsumer<MoviesBloc, MoviesState>(
-              listener: (prev, curr) {
-                if (curr is StateMovieRemoved) {
+              listener: (context, state) {
+                print("current state:${state}");
+                if (state is StateMovieRemoved) {
+                  setState(() {
+
+                  });
                   ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           content: const Text("Movie removed from watchlist"),
@@ -42,6 +50,9 @@ class _WatchlistState extends State<Watchlist> {
                       )
                   );
                 }
+              },
+              buildWhen: (prev, curr){
+                return curr is StateFetchingMoviesFromDb || curr is StateMoviesFetchedFromDb;
               },
               builder: (context, state) {
 
@@ -57,15 +68,19 @@ class _WatchlistState extends State<Watchlist> {
                     ),
                   );
                 } else if (state is StateMoviesFetchedFromDb) {
+
                   return Expanded(
                     child: StreamBuilder(
                       stream: state.movies,
                         builder: (context, snapshot){
-                          List<Movie>? movies = snapshot.data;
+
+                          print("snapshot: ${snapshot}");
+                          print("snapshot data: ${snapshot.data}");
                           if(!snapshot.hasData){
                             return const Center(
                               child: CircularProgressIndicator(),);
                           }else{
+                            List<MovieTableData> movies = snapshot.requireData;
                           return ListView.separated(
                               itemBuilder: (context, index) {
                                 return ListTile(
@@ -77,7 +92,7 @@ class _WatchlistState extends State<Watchlist> {
                                       onPressed: () {
                                         BlocProvider.of<MoviesBloc>(context).add(
                                             EventRemoveFromWatchlist(
-                                                movies[index]));
+                                                movies[index].id));
                                       }),
                                 );
                               },
@@ -87,7 +102,15 @@ class _WatchlistState extends State<Watchlist> {
                               itemCount: movies!.length);
                         }}),
                   );
-                } else {
+                } else if(state is StateMoviesFailed){
+                      return Column(
+                        children: [
+                          Center(
+                            child: Text(state.errorMessage),
+                          )
+                        ],
+                      );
+                }else{
                   return Container();
                 }
               },
@@ -105,6 +128,7 @@ class _WatchlistState extends State<Watchlist> {
       return Image.network(posterUrl);
     }
   }
+
 
 
 }
