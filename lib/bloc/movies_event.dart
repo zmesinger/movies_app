@@ -55,3 +55,11 @@ class EventRemoveFromWatchlist extends MoviesEvent{
   List<Object?> get props => [id];
 
 }
+
+class EventGetNetwork extends MoviesEvent{
+
+
+  @override
+  List<Object?> get props => throw UnimplementedError();
+
+}

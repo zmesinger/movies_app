@@ -17,6 +17,8 @@ void main() {
   );
 }
 
+
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -77,6 +79,14 @@ class _MoviesState extends State<Movies> {
           ),
           BlocConsumer<MoviesBloc, MoviesState>(
             listener: (prev, curr) {
+              if(curr is StateNetworkAvailable){
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:  Text(curr.message),
+                      duration: const Duration(seconds: 2),
+                    )
+                );
+              }
               if(curr is StateMovieInserted){
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -89,7 +99,7 @@ class _MoviesState extends State<Movies> {
               }
             },
             buildWhen: (prev, curr) {
-              return curr is StateFetchingMovies || curr is StateMoviesFetched || curr is StateMoviesFailed;
+              return curr is StateFetchingMovies || curr is StateMoviesFetched || curr is StateMoviesFailed || curr is StateNetworkAvailable;
             },
             builder: (context, state) {
               if (state is StateFetchingMovies) {
@@ -182,5 +192,11 @@ class _MoviesState extends State<Movies> {
     }else{
       return Image.network(posterUrl);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<MoviesBloc>(context).add(EventGetNetwork());
   }
 }

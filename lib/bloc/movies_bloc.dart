@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:movies_app/database/watchlist_db.dart';
 import 'package:movies_app/model/movie.dart';
@@ -15,10 +16,9 @@ part 'movies_state.dart';
 class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
 
   final db = WatchlistDb();
+  static const platform = MethodChannel("com.example.moviesApp/network");
 
-  Future<Response?> getData(String query) async => await MoviesService().getMovies(query);
 
-  Future<Movie?> getMovieDetail(String imdbID) async => await MoviesService().getMovieDetails(imdbID);
 
 
   MoviesBloc() : super(MoviesInitial())  {
@@ -73,6 +73,29 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       db.deleteMovie(event.id);
       emit(StateMovieRemoved());
     });
+    on<EventGetNetwork>((event, emit) async {
+      emit(StateNetworkAvailable(await _getNetworkStatus()));
+    });
 
   }
+
+  Future<Response?> getData(String query) async => await MoviesService().getMovies(query);
+
+  Future<Movie?> getMovieDetail(String imdbID) async => await MoviesService().getMovieDetails(imdbID);
+
+  Future<String> _getNetworkStatus() async{
+    String networkAvailable;
+    try{
+      final bool result = await platform.invokeMethod("getNetwork");
+      if(result){
+        networkAvailable = "Connected to network";
+      }else{
+        networkAvailable = "No network connection";
+      }
+    }on PlatformException catch (e){
+      networkAvailable = "Failed getting network info: '${e.message}'";
+    }
+    return networkAvailable;
+  }
+
 }

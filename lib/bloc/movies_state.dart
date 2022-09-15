@@ -75,5 +75,14 @@ class StateMovieRemoved extends MoviesState{
 
 }
 
+class StateNetworkAvailable extends MoviesState{
+  final String message;
+
+  StateNetworkAvailable(this.message);
+
+  @override
+  List<Object?> get props => [message];
+
+}
 
 

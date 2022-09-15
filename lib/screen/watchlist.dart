@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/database/watchlist_db.dart';
-import 'package:movies_app/model/movie.dart';
 import '../bloc/movies_bloc.dart';
-import 'details.dart';
 
 class Watchlist extends StatefulWidget {
   const Watchlist({Key? key}) : super(key: key);
