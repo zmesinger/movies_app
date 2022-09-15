@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/bloc/movies_bloc.dart';
@@ -63,18 +64,12 @@ class _MoviesState extends State<Movies> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
+            child: CupertinoSearchTextField(
               controller: _queryController,
-              decoration: InputDecoration(
-                suffixIcon: IconButton(onPressed: () {
-                  BlocProvider.of<MoviesBloc>(context).add(
-                      EventFetchMovies(_queryController.text));
-                },
-                  icon: const Icon(Icons.search),
-                ),
-                border: const OutlineInputBorder(),
-                hintText: "Enter query",
-              ),
+              onSubmitted: (value){
+                BlocProvider.of<MoviesBloc>(context).add(
+                    EventFetchMovies(_queryController.text));
+              },
             ),
           ),
           BlocConsumer<MoviesBloc, MoviesState>(
@@ -83,11 +78,10 @@ class _MoviesState extends State<Movies> {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content:  Text(curr.message),
-                      duration: const Duration(seconds: 2),
+                      duration: const Duration(seconds: 3),
                     )
                 );
-              }
-              if(curr is StateMovieInserted){
+              }else if(curr is StateMovieInserted){
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text("Movie added to watchlist"),
@@ -96,12 +90,21 @@ class _MoviesState extends State<Movies> {
                           label: "HIDE",
                           onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar),)
                 );
+              }else if(curr is StateNetworkNotAvailable){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("No network"),
+                  )
+                );
               }
             },
             buildWhen: (prev, curr) {
-              return curr is StateFetchingMovies || curr is StateMoviesFetched || curr is StateMoviesFailed || curr is StateNetworkAvailable;
+              return curr is StateFetchingMovies || curr is StateMoviesFetched ||
+                  curr is StateMoviesFailed || curr is StateNetworkAvailable || curr is StateNetworkNotAvailable;
             },
             builder: (context, state) {
+
+              print(state);
               if (state is StateFetchingMovies) {
                 return Expanded(
                   child: Center(
@@ -152,8 +155,19 @@ class _MoviesState extends State<Movies> {
                     ],
                   ),
                 );
-              }
-              else {
+              }else if(state is StateNetworkNotAvailable) {
+                return Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Text("No network"),
+                      ],
+                    ),
+                  ),
+                );
+
+              }else {
                 return Container();
               }
             },
@@ -193,6 +207,8 @@ class _MoviesState extends State<Movies> {
       return Image.network(posterUrl);
     }
   }
+
+
 
   @override
   void initState() {

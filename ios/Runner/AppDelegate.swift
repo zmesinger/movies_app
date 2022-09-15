@@ -15,8 +15,7 @@ import Flutter
                                                 binaryMessenger: controller.binaryMessenger)
       
       
-      let networkMonitor: NetworkMonitor = NetworkMonitor()
-      networkMonitor.startMonitoring()
+      NetworkMonitor.shared.startMonitoring()
           
       networkChannel.setMethodCallHandler({
           [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
@@ -27,17 +26,15 @@ import Flutter
               
           }
               
-          self?.getNetworkStatus(result: result, networkMonitor: networkMonitor)
+          result(Bool(NetworkMonitor.shared.isReachable))
               
       })
+      
+      NetworkMonitor.shared.setNetworkChannel(networkChannel: networkChannel)
    
-    
+      
       return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
     
-    private func getNetworkStatus(result: FlutterResult, networkMonitor: NetworkMonitor) {
-
-            result(Bool(networkMonitor.isReachable))
-        
-    }
+    
 }

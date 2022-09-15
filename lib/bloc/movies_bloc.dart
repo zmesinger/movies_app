@@ -16,12 +16,16 @@ part 'movies_state.dart';
 class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
 
   final db = WatchlistDb();
-  static const platform = MethodChannel("com.example.moviesApp/network");
+  static const _platform = MethodChannel("com.example.moviesApp/network");
+  late bool _isNetworkAvailable;
+
 
 
 
 
   MoviesBloc() : super(MoviesInitial())  {
+     _isNetworkAvailable = _initNetworkHandler();
+
     on<EventFetchMovies>((event, emit) async {
       emit(StateFetchingMovies());
       Response? data = await getData(event.query);
@@ -74,7 +78,14 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       emit(StateMovieRemoved());
     });
     on<EventGetNetwork>((event, emit) async {
-      emit(StateNetworkAvailable(await _getNetworkStatus()));
+        emit(StateNetworkAvailable(await _getNetworkStatus(), true));
+    });
+    on<EventCheckNetwork>((event, emit) {
+      if(_isNetworkAvailable){
+        emit(StateNetworkAvailable("Connected to network", _isNetworkAvailable));
+      }else{
+        emit(StateNetworkNotAvailable(_isNetworkAvailable));
+      }
     });
 
   }
@@ -86,7 +97,7 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
   Future<String> _getNetworkStatus() async{
     String networkAvailable;
     try{
-      final bool result = await platform.invokeMethod("getNetwork");
+      final bool result = await _platform.invokeMethod("getNetwork");
       if(result){
         networkAvailable = "Connected to network";
       }else{
@@ -97,5 +108,27 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
     }
     return networkAvailable;
   }
+
+
+
+
+
+  bool _initNetworkHandler(){
+    bool status = false;
+    _platform.setMethodCallHandler((call) async {
+      switch(call.method){
+        case "onNetworkChanged":
+          status = call.arguments["status"];
+          print("status:$status");
+          _isNetworkAvailable = call.arguments["status"];
+          break;
+        default:
+          print("No such method");
+      }
+    });
+    return status;
+  }
+
+
 
 }
