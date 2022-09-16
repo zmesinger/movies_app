@@ -52,6 +52,7 @@ class _MoviesState extends State<Movies> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("MoviesApp"),
@@ -91,16 +92,27 @@ class _MoviesState extends State<Movies> {
                           onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar),)
                 );
               }else if(curr is StateNetworkNotAvailable){
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("No network"),
-                  )
-                );
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (context){
+                      return AlertDialog(
+                        title: const Text("No network"),
+                        actionsAlignment: MainAxisAlignment.center,
+                        actions: [
+                          ElevatedButton(
+                              onPressed: (){
+                                  Navigator.of(context).pop();
+                              },
+                              child: const Text("Retry"))
+                        ],
+                      );
+                    });
               }
             },
             buildWhen: (prev, curr) {
               return curr is StateFetchingMovies || curr is StateMoviesFetched ||
-                  curr is StateMoviesFailed || curr is StateNetworkAvailable || curr is StateNetworkNotAvailable;
+                  curr is StateMoviesFailed;
             },
             builder: (context, state) {
 
@@ -155,18 +167,6 @@ class _MoviesState extends State<Movies> {
                     ],
                   ),
                 );
-              }else if(state is StateNetworkNotAvailable) {
-                return Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Text("No network"),
-                      ],
-                    ),
-                  ),
-                );
-
               }else {
                 return Container();
               }

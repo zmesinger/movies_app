@@ -17,14 +17,13 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
 
   final db = WatchlistDb();
   static const _platform = MethodChannel("com.example.moviesApp/network");
-  late bool _isNetworkAvailable;
 
 
 
 
 
   MoviesBloc() : super(MoviesInitial())  {
-     _isNetworkAvailable = _initNetworkHandler();
+    _initNetworkHandler();
 
     on<EventFetchMovies>((event, emit) async {
       emit(StateFetchingMovies());
@@ -43,6 +42,7 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       }
 
     });
+
     on<EventShowDetails>((event, emit) async {
       emit(StateFetchingMovieDetails());
       Movie? movie = await getMovieDetail(event.imdbID);
@@ -59,6 +59,7 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
         emit(StateMoviesFailed("Fetching details failed"));
       }
     });
+
     on<EventShowWatchlist>((event, emit) async {
       emit(StateFetchingMoviesFromDb());
       Stream<List<MovieTableData>> movies = db.watchMovies();
@@ -69,24 +70,30 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
         emit(StateMoviesFetchedFromDb(movies));
       }
     });
+
     on<EventAddToWatchlist>((event, emit) {
       db.insertMovie(event.movie);
       emit(StateMovieInserted());
     });
+
     on<EventRemoveFromWatchlist>((event, emit) async {
       db.deleteMovie(event.id);
       emit(StateMovieRemoved());
     });
+
     on<EventGetNetwork>((event, emit) async {
-        emit(StateNetworkAvailable(await _getNetworkStatus(), true));
+      emit(StateNetworkAvailable(await _getNetworkStatus(), true));
     });
-    on<EventCheckNetwork>((event, emit) {
-      if(_isNetworkAvailable){
-        emit(StateNetworkAvailable("Connected to network", _isNetworkAvailable));
+    on<EventNetworkChanged>((event, emit) {
+      if(event.status){
+        emit(StateNetworkAvailable("Network available", event.status));
       }else{
-        emit(StateNetworkNotAvailable(_isNetworkAvailable));
+        emit(StateNetworkNotAvailable(event.status));
       }
     });
+
+
+
 
   }
 
@@ -94,7 +101,7 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
 
   Future<Movie?> getMovieDetail(String imdbID) async => await MoviesService().getMovieDetails(imdbID);
 
-  Future<String> _getNetworkStatus() async{
+  Future<String> _getNetworkStatus() async {
     String networkAvailable;
     try{
       final bool result = await _platform.invokeMethod("getNetwork");
@@ -106,27 +113,24 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
     }on PlatformException catch (e){
       networkAvailable = "Failed getting network info: '${e.message}'";
     }
+
     return networkAvailable;
   }
 
 
+   _initNetworkHandler(){
 
-
-
-  bool _initNetworkHandler(){
-    bool status = false;
     _platform.setMethodCallHandler((call) async {
       switch(call.method){
         case "onNetworkChanged":
-          status = call.arguments["status"];
-          print("status:$status");
-          _isNetworkAvailable = call.arguments["status"];
+          add(EventNetworkChanged(call.arguments["status"]));
+          print("status: ${call.arguments["status"]}");
           break;
         default:
           print("No such method");
       }
+
     });
-    return status;
   }
 
 

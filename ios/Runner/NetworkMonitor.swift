@@ -32,7 +32,7 @@ class NetworkMonitor {
             }
             
             self?.networkChannel?.invokeMethod("onNetworkChanged", arguments: [
-                "status" : path.status == .satisfied, 
+                "status" : !(path.status == .satisfied), 
             ])
             
             print(path.isExpensive)

@@ -63,8 +63,12 @@ class EventGetNetwork extends MoviesEvent{
 
 }
 
-class EventCheckNetwork extends MoviesEvent{
+class EventNetworkChanged extends MoviesEvent{
+  final bool status;
+
+  EventNetworkChanged(this.status);
+
   @override
-  List<Object?> get props => [] ;
+  List<Object?> get props => [status];
 
 }
