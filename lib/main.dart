@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -115,8 +114,6 @@ class _MoviesState extends State<Movies> {
                   curr is StateMoviesFailed;
             },
             builder: (context, state) {
-
-              print(state);
               if (state is StateFetchingMovies) {
                 return Expanded(
                   child: Center(

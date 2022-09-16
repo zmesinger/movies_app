@@ -31,7 +31,6 @@ class _WatchlistState extends State<Watchlist> {
           children: [
             BlocConsumer<MoviesBloc, MoviesState>(
               listener: (context, state) {
-                print("current state:${state}");
                 if (state is StateMovieRemoved) {
                   setState(() {
 
@@ -71,9 +70,6 @@ class _WatchlistState extends State<Watchlist> {
                     child: StreamBuilder(
                       stream: state.movies,
                         builder: (context, snapshot){
-
-                          print("snapshot: ${snapshot}");
-                          print("snapshot data: ${snapshot.data}");
                           if(!snapshot.hasData){
                             return const Center(
                               child: CircularProgressIndicator(),);
@@ -82,9 +78,9 @@ class _WatchlistState extends State<Watchlist> {
                           return ListView.separated(
                               itemBuilder: (context, index) {
                                 return ListTile(
-                                  title: Text(movies[index].title!),
-                                  subtitle: Text(movies[index].year!),
-                                  leading: _displayPoster(movies[index].poster!),
+                                  title: Text(movies[index].title),
+                                  subtitle: Text(movies[index].year),
+                                  leading: _displayPoster(movies[index].poster),
                                   trailing: IconButton(icon: const Icon(
                                       Icons.remove_circle_outline_sharp),
                                       onPressed: () {
