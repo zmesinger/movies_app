@@ -40,7 +40,7 @@ class _DetailsState extends State<Details> {
               appBar: AppBar(
                 title: Text(state.movie.title!),
               ),
-              body: Column(
+              body: PageView(
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(left: 16, top: 16, right: 16),

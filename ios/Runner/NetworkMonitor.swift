@@ -10,7 +10,7 @@ import Network
 
 @available(iOS 12.0, *)
 class NetworkMonitor {
-    var networkChannel: FlutterMethodChannel?
+    var eventSink: FlutterEventSink?
     static let shared = NetworkMonitor()
 
     let monitor = NWPathMonitor()
@@ -31,9 +31,18 @@ class NetworkMonitor {
                 // post disconnected notification
             }
             
-            self?.networkChannel?.invokeMethod("onNetworkChanged", arguments: [
-                "status" : !(path.status == .satisfied), 
-            ])
+            //TODO: Replace with eventsink
+//            self?.networkChannel?.invokeMethod("onNetworkChanged", arguments: [
+//                "status" : !(path.status == .satisfied),
+//            ])
+            
+            if((self?.eventSink) != nil){
+                self?.eventSink!(
+                    ["status" : !(path.status == .satisfied),
+                    ]
+                )
+                
+            }
             
             print(path.isExpensive)
         }
@@ -42,8 +51,10 @@ class NetworkMonitor {
         monitor.start(queue: queue)
     }
     
-    func setNetworkChannel(networkChannel: FlutterMethodChannel){
-        self.networkChannel = networkChannel
+ 
+    
+    func setNetworkEventSink(eventSink: @escaping FlutterEventSink){
+        self.eventSink = eventSink
     }
     
     

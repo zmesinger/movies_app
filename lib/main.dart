@@ -49,10 +49,11 @@ class _MoviesState extends State<Movies> {
   List<Search> _movies = [];
   final TextEditingController _queryController = TextEditingController();
 
+  bool _isNetworkAvailable = true;
 
   @override
   Widget build(BuildContext context) {
-    BuildContext? dialogContext;
+
 
     return Scaffold(
       appBar: AppBar(
@@ -76,18 +77,22 @@ class _MoviesState extends State<Movies> {
           ),
           BlocConsumer<MoviesBloc, MoviesState>(
 
-            listener: (prev, curr) {
-              if(curr is StateNetworkAvailable){
-                if(dialogContext != null) {
-                  Navigator.pop(dialogContext!);
+            listener: (context, state) {
+              if(state is StateNetworkAvailable){
+                if(!_isNetworkAvailable) {
+                  Navigator.of(context).pop();
                 }
+                setState(() {
+                  _isNetworkAvailable = true;
+                });
+
                 ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content:  Text(curr.message),
-                      duration: const Duration(seconds: 3),
+                    const SnackBar(
+                      content:  Text("Network available"),
+                      duration: Duration(seconds: 3),
                     )
                 );
-              }else if(curr is StateMovieInserted){
+              }else if(state is StateMovieInserted){
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text("Movie added to watchlist"),
@@ -96,13 +101,14 @@ class _MoviesState extends State<Movies> {
                           label: "HIDE",
                           onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar),)
                 );
-              }else if(curr is StateNetworkNotAvailable){
-
+              }else if(state is StateNetworkNotAvailable){
+                setState(() {
+                  _isNetworkAvailable = false;
+                });
                 showDialog(
                     barrierDismissible: false,
                     context: context,
                     builder: (context){
-                      dialogContext = context;
                       return const AlertDialog(
                         icon: Icon(Icons.warning_amber_outlined),
                         title: Text("No network available"),

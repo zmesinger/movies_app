@@ -17,10 +17,8 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
 
   final db = WatchlistDb();
   static const _platform = MethodChannel("com.example.moviesApp/network");
-
-
-
-
+  final _eventChannel = const EventChannel("com.example.moviesApp/networkChannel");
+  late final StreamSubscription _networkStreamSubscription;
 
   MoviesBloc() : super(MoviesInitial())  {
     _initNetworkHandler();
@@ -82,18 +80,19 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
     });
 
     on<EventGetNetwork>((event, emit) async {
-      emit(StateNetworkAvailable(await _getNetworkStatus(), true));
+      if(await _getNetworkStatus()) {
+        emit(StateNetworkAvailable());
+      } else{
+        emit(StateNetworkNotAvailable());
+      }
     });
     on<EventNetworkChanged>((event, emit) {
       if(event.status){
-        emit(StateNetworkAvailable("Network available", event.status));
+        emit(StateNetworkAvailable());
       }else{
         emit(StateNetworkNotAvailable());
       }
     });
-
-
-
 
   }
 
@@ -101,36 +100,44 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
 
   Future<Movie?> getMovieDetail(String imdbID) async => await MoviesService().getMovieDetails(imdbID);
 
-  Future<String> _getNetworkStatus() async {
-    String networkAvailable;
+  Future<bool> _getNetworkStatus() async {
     try{
       final bool result = await _platform.invokeMethod("getNetwork");
-      if(result){
-        networkAvailable = "Connected to network";
-      }else{
-        networkAvailable = "No network connection";
-      }
+      return result;
     }on PlatformException catch (e){
-      networkAvailable = "Failed getting network info: '${e.message}'";
+      print(e.message);
     }
 
-    return networkAvailable;
+    return false;
   }
 
 
+
+
    _initNetworkHandler(){
+     _networkStreamSubscription = _eventChannel.receiveBroadcastStream().listen((arguments) {
+       arguments as Map;
+       print(arguments.toString());
+       add(EventNetworkChanged(arguments["status"]));
+     });
 
-    _platform.setMethodCallHandler((call) async {
-      switch(call.method){
-        case "onNetworkChanged":
-          add(EventNetworkChanged(call.arguments["status"]));
-          print("status: ${call.arguments["status"]}");
-          break;
-        default:
-          print("No such method");
-      }
+     // _platform.setMethodCallHandler((call) async {
+     //  switch(call.method){
+     //    case "onNetworkChanged":
+     //      add(EventNetworkChanged(call.arguments["status"]));
+     //      print("status: ${call.arguments["status"]}");
+     //      break;
+     //    default:
+     //      print("No such method");
+     //  }
 
-    });
+ //   });
+  }
+
+  @override
+  Future<void> close() {
+    _networkStreamSubscription.cancel();
+    return super.close();
   }
 
 
