@@ -25,7 +25,6 @@ class _WatchlistState extends State<Watchlist> {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Watchlist"),
-
         ),
         body: Column(
           children: [

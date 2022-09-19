@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/bloc/movies_bloc.dart';
 import 'package:movies_app/database/watchlist_db.dart';
@@ -51,6 +52,7 @@ class _MoviesState extends State<Movies> {
 
   @override
   Widget build(BuildContext context) {
+    BuildContext? dialogContext;
 
     return Scaffold(
       appBar: AppBar(
@@ -73,8 +75,12 @@ class _MoviesState extends State<Movies> {
             ),
           ),
           BlocConsumer<MoviesBloc, MoviesState>(
+
             listener: (prev, curr) {
               if(curr is StateNetworkAvailable){
+                if(dialogContext != null) {
+                  Navigator.pop(dialogContext!);
+                }
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content:  Text(curr.message),
@@ -91,20 +97,16 @@ class _MoviesState extends State<Movies> {
                           onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar),)
                 );
               }else if(curr is StateNetworkNotAvailable){
+
                 showDialog(
                     barrierDismissible: false,
                     context: context,
                     builder: (context){
-                      return AlertDialog(
-                        title: const Text("No network"),
+                      dialogContext = context;
+                      return const AlertDialog(
+                        icon: Icon(Icons.warning_amber_outlined),
+                        title: Text("No network available"),
                         actionsAlignment: MainAxisAlignment.center,
-                        actions: [
-                          ElevatedButton(
-                              onPressed: (){
-                                  Navigator.of(context).pop();
-                              },
-                              child: const Text("Retry"))
-                        ],
                       );
                     });
               }
@@ -156,12 +158,16 @@ class _MoviesState extends State<Movies> {
                       itemCount: _movies.length),
                 );
               } else if (state is StateMoviesFailed) {
-                return Center(
-                  child: Row(
-                    children: [
-                      Center(
-                          child: Text(state.errorMessage)),
-                    ],
+                return Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.warning_amber_sharp)
+                        ,Center(
+                            child: Text(state.errorMessage)),
+                      ],
+                    ),
                   ),
                 );
               }else {

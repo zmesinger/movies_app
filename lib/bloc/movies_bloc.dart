@@ -88,7 +88,7 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       if(event.status){
         emit(StateNetworkAvailable("Network available", event.status));
       }else{
-        emit(StateNetworkNotAvailable(event.status));
+        emit(StateNetworkNotAvailable());
       }
     });
 

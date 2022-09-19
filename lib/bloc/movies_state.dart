@@ -86,12 +86,10 @@ class StateNetworkAvailable extends MoviesState{
 }
 
 class StateNetworkNotAvailable extends MoviesState{
-  final bool status;
 
-  StateNetworkNotAvailable(this.status);
 
   @override
-  List<Object?> get props => [status];
+  List<Object?> get props => [];
 
 }
 
