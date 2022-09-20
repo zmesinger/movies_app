@@ -70,5 +70,15 @@ class EventNetworkChanged extends MoviesEvent{
 
   @override
   List<Object?> get props => [status];
+}
+
+class EventShowWatchlistDetail extends MoviesEvent{
+  final List<MovieTableData> movies;
+  final int index;
+
+  EventShowWatchlistDetail(this.movies, this.index);
+
+  @override
+  List<Object?> get props => [movies, index];
 
 }

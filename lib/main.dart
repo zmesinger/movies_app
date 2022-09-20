@@ -144,18 +144,19 @@ class _MoviesState extends State<Movies> {
                           subtitle: Text(_movies[index].year!),
                           leading:  _displayPoster(_movies[index].poster),
                           onTap: () => _showDetails(_movies[index].imdbId!),
-                          trailing: IconButton(
-                              onPressed: (){
-                                BlocProvider.of<MoviesBloc>(context).add(
-                                    EventAddToWatchlist(MovieTableCompanion(
-                                      title: drift.Value(_movies[index].title!),
-                                      year: drift.Value(_movies[index].year!),
-                                      poster: drift.Value(_movies[index].poster!),
-                                      imdbId: drift.Value(_movies[index].imdbId!),
-                                    )
-                                        ));
-                                },
-                              icon: const Icon(Icons.add_circle_outline_sharp)),
+                          trailing: InkWell(
+                            onTap: (){
+                              BlocProvider.of<MoviesBloc>(context).add(
+                                  EventAddToWatchlist(MovieTableCompanion(
+                                    title: drift.Value(_movies[index].title!),
+                                    year: drift.Value(_movies[index].year!),
+                                    poster: drift.Value(_movies[index].poster!),
+                                    imdbId: drift.Value(_movies[index].imdbId!),
+                                  )
+                                  ));
+                            },
+                            child: const Icon(Icons.add_box_outlined),
+                          )
                         );
                       },
                       separatorBuilder: (context, index) {

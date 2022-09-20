@@ -90,4 +90,15 @@ class StateNetworkNotAvailable extends MoviesState{
 
 }
 
+class StateMovieListFetched extends MoviesState{
+  final List<MovieTableData> movies;
+  final int index;
+
+  StateMovieListFetched(this.movies, this.index);
+
+  @override
+  List<Object?> get props => [movies, index];
+
+}
+
 
