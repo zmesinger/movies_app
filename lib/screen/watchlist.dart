@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/database/watchlist_db.dart';
+import 'package:movies_app/screen/watchlist_detail.dart';
 import '../bloc/movies_bloc.dart';
+import 'details.dart';
 
 class Watchlist extends StatefulWidget {
   const Watchlist({Key? key}) : super(key: key);
@@ -80,13 +82,17 @@ class _WatchlistState extends State<Watchlist> {
                                   title: Text(movies[index].title),
                                   subtitle: Text(movies[index].year),
                                   leading: _displayPoster(movies[index].poster),
-                                  trailing: IconButton(icon: const Icon(
-                                      Icons.remove_circle_outline_sharp),
-                                      onPressed: () {
-                                        BlocProvider.of<MoviesBloc>(context).add(
-                                            EventRemoveFromWatchlist(
-                                                movies[index].id));
-                                      }),
+                                  onTap:() {
+                                    _showDetails(movies, index);
+                                  },
+                                  trailing: InkWell(
+                                    onTap: (){
+                                      BlocProvider.of<MoviesBloc>(context).add(
+                                          EventRemoveFromWatchlist(
+                                              movies[index].id));
+                                    },
+                                    child: const Icon(Icons.remove_circle_outline_sharp),
+                                  )
                                 );
                               },
                               separatorBuilder: (context, index){
@@ -120,6 +126,17 @@ class _WatchlistState extends State<Watchlist> {
     } else {
       return Image.network(posterUrl);
     }
+  }
+  _showDetails(List<MovieTableData> movies, int index){
+    Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (context){
+          return BlocProvider<MoviesBloc>.value(
+            value: BlocProvider.of<MoviesBloc>(context),
+            child: WatchlistDetail(movies: movies, index: index,)
+          );
+        }
+        )
+    );
   }
 
 

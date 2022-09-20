@@ -94,6 +94,15 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       }
     });
 
+    on<EventShowWatchlistDetail>((event, emit) {
+      if(event.movies.isNotEmpty){
+        emit(StateMovieListFetched(event.movies, event.index));
+      }else{
+        emit(StateMoviesFailed("Cannot fetch movies"));
+      }
+
+    });
+
   }
 
   Future<Response?> getData(String query) async => await MoviesService().getMovies(query);
