@@ -1,6 +1,7 @@
-import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/bloc/movies_bloc.dart';
 import 'package:movies_app/database/watchlist_db.dart';
@@ -16,6 +17,8 @@ void main() {
   )
   );
 }
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -46,9 +49,12 @@ class _MoviesState extends State<Movies> {
   List<Search> _movies = [];
   final TextEditingController _queryController = TextEditingController();
 
+  bool _isNetworkAvailable = true;
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("MoviesApp"),
@@ -61,23 +67,32 @@ class _MoviesState extends State<Movies> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
+            child: CupertinoSearchTextField(
               controller: _queryController,
-              decoration: InputDecoration(
-                suffixIcon: IconButton(onPressed: () {
-                  BlocProvider.of<MoviesBloc>(context).add(
-                      EventFetchMovies(_queryController.text));
-                },
-                  icon: const Icon(Icons.search),
-                ),
-                border: const OutlineInputBorder(),
-                hintText: "Enter query",
-              ),
+              onSubmitted: (value){
+                BlocProvider.of<MoviesBloc>(context).add(
+                    EventFetchMovies(_queryController.text));
+              },
             ),
           ),
           BlocConsumer<MoviesBloc, MoviesState>(
-            listener: (prev, curr) {
-              if(curr is StateMovieInserted){
+
+            listener: (context, state) {
+              if(state is StateNetworkAvailable){
+                if(!_isNetworkAvailable) {
+                  Navigator.of(context).pop();
+                }
+                setState(() {
+                  _isNetworkAvailable = true;
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content:  Text("Network available"),
+                      duration: Duration(seconds: 3),
+                    )
+                );
+              }else if(state is StateMovieInserted){
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text("Movie added to watchlist"),
@@ -86,10 +101,25 @@ class _MoviesState extends State<Movies> {
                           label: "HIDE",
                           onPressed: ScaffoldMessenger.of(context).hideCurrentSnackBar),)
                 );
+              }else if(state is StateNetworkNotAvailable){
+                setState(() {
+                  _isNetworkAvailable = false;
+                });
+                showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (context){
+                      return const AlertDialog(
+                        icon: Icon(Icons.warning_amber_outlined),
+                        title: Text("No network available"),
+                        actionsAlignment: MainAxisAlignment.center,
+                      );
+                    });
               }
             },
             buildWhen: (prev, curr) {
-              return curr is StateFetchingMovies || curr is StateMoviesFetched || curr is StateMoviesFailed;
+              return curr is StateFetchingMovies || curr is StateMoviesFetched ||
+                  curr is StateMoviesFailed;
             },
             builder: (context, state) {
               if (state is StateFetchingMovies) {
@@ -134,16 +164,19 @@ class _MoviesState extends State<Movies> {
                       itemCount: _movies.length),
                 );
               } else if (state is StateMoviesFailed) {
-                return Center(
-                  child: Row(
-                    children: [
-                      Center(
-                          child: Text(state.errorMessage)),
-                    ],
+                return Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.warning_amber_sharp)
+                        ,Center(
+                            child: Text(state.errorMessage)),
+                      ],
+                    ),
                   ),
                 );
-              }
-              else {
+              }else {
                 return Container();
               }
             },
@@ -182,5 +215,13 @@ class _MoviesState extends State<Movies> {
     }else{
       return Image.network(posterUrl);
     }
+  }
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<MoviesBloc>(context).add(EventGetNetwork());
   }
 }

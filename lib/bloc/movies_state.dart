@@ -75,5 +75,19 @@ class StateMovieRemoved extends MoviesState{
 
 }
 
+class StateNetworkAvailable extends MoviesState{
+
+
+  @override
+  List<Object?> get props => [];
+}
+
+class StateNetworkNotAvailable extends MoviesState{
+
+
+  @override
+  List<Object?> get props => [];
+
+}
 
 

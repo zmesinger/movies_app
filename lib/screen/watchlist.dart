@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/database/watchlist_db.dart';
-import 'package:movies_app/model/movie.dart';
 import '../bloc/movies_bloc.dart';
-import 'details.dart';
 
 class Watchlist extends StatefulWidget {
   const Watchlist({Key? key}) : super(key: key);
@@ -27,13 +25,11 @@ class _WatchlistState extends State<Watchlist> {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Watchlist"),
-
         ),
         body: Column(
           children: [
             BlocConsumer<MoviesBloc, MoviesState>(
               listener: (context, state) {
-                print("current state:${state}");
                 if (state is StateMovieRemoved) {
                   setState(() {
 
@@ -73,9 +69,6 @@ class _WatchlistState extends State<Watchlist> {
                     child: StreamBuilder(
                       stream: state.movies,
                         builder: (context, snapshot){
-
-                          print("snapshot: ${snapshot}");
-                          print("snapshot data: ${snapshot.data}");
                           if(!snapshot.hasData){
                             return const Center(
                               child: CircularProgressIndicator(),);
@@ -84,9 +77,9 @@ class _WatchlistState extends State<Watchlist> {
                           return ListView.separated(
                               itemBuilder: (context, index) {
                                 return ListTile(
-                                  title: Text(movies[index].title!),
-                                  subtitle: Text(movies[index].year!),
-                                  leading: _displayPoster(movies[index].poster!),
+                                  title: Text(movies[index].title),
+                                  subtitle: Text(movies[index].year),
+                                  leading: _displayPoster(movies[index].poster),
                                   trailing: IconButton(icon: const Icon(
                                       Icons.remove_circle_outline_sharp),
                                       onPressed: () {
